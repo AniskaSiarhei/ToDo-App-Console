@@ -1,12 +1,7 @@
 [
     {
-        "id": 1,
-        "title": "Изучить Python ",
-        "done": true
-    },
-    {
-        "id": 2,
-        "title": "Сменить работу",
+        "id": 3,
+        "title": "Изучить Python",
         "done": true
     }
 ]

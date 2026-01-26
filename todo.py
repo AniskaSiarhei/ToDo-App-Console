@@ -8,6 +8,10 @@ class ToDoManager:
         self.tasks = []
         self.load_tasks()
 
+        self.next_id = 1
+        if self.tasks:
+            self.next_id = max(task["id"] for task in self.tasks) + 1
+
     def load_tasks(self):
         if os.path.exists(self.filename):
             with open(self.filename, "r", encoding="utf-8") as f:
@@ -20,13 +24,13 @@ class ToDoManager:
             json.dump(self.tasks, f, indent=4, ensure_ascii=False)
 
     def add_task(self, title):
-        task_id = len(self.tasks) + 1
         task = {
-            "id": task_id,
+            "id": self.next_id,
             "title": title,
             "done": False
         }
         self.tasks.append(task)
+        self.next_id += 1
         self.save_tasks()
 
     def complete_task(self, task_id):
@@ -37,15 +41,26 @@ class ToDoManager:
                 return True
         return False
 
+    def delete_task(self, task_id):
+        for task in self.tasks:
+            if task["id"] == task_id:
+                self.tasks.remove(task)
+                self.save_tasks()
+                return True
+        return False
+
     def list_tasks(self):
         return self.tasks
 
+
 def show_menu():
-        print("\n📌 МЕНЕДЖЕР ЗАДАЧ")
-        print("1. Показать задачи")
-        print("2. Добавить задачу")
-        print("3. Отметить задачу выполненной")
-        print("4. Выйти")
+    print("\n📌 МЕНЕДЖЕР ЗАДАЧ")
+    print("1. Показать задачи")
+    print("2. Добавить задачу")
+    print("3. Отметить задачу выполненной")
+    print("4. Удалить задачу")
+    print("5. Выйти")
+
 
 def main():
     to_do_manager = ToDoManager()
@@ -81,11 +96,22 @@ def main():
                 print("⚠️ ID должен быть числом")
 
         elif choice == "4":
+            try:
+                task_id = int(input("Введите ID задачи для удаления: "))
+                if to_do_manager.delete_task(task_id):
+                    print("🗑 Задача удалена")
+                else:
+                    print("❗ Задача с таким ID не найдена")
+            except ValueError:
+                print("⚠️ ID должен быть числом")
+
+        elif choice == "5":
             print("👋 Выход из программы")
             break
 
         else:
             print("❗ Неверный пункт меню")
+
 
 if __name__ == "__main__":
     main()
