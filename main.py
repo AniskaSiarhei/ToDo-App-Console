@@ -1,0 +1,65 @@
+from manager import ToDoManager
+from menu import show_menu, show_task
+
+
+def main():
+    manager = ToDoManager()
+
+    while True:
+        show_menu()
+        choice = input("Выберите действие: ")
+
+        if choice == "1":
+            show_task(manager.list_tasks())
+
+        elif choice == "2":
+            title = input("Введите текст задачи: ")
+            if title.strip():
+                manager.add_task(title)
+                print("✅ Задача добавлена")
+            else:
+                print("⚠️ Задача не может быть пустой")
+
+        elif choice == "3":
+            try:
+                task_id = int(input("Введите ID задачи: "))
+                if manager.complete_task(task_id):
+                    print("✅ Задача отмечена как выполненная")
+                else:
+                    print("❗ Задача с таким ID не найдена")
+            except ValueError:
+                print("⚠️ ID должен быть числом")
+
+        elif choice == "4":
+            try:
+                task_id = int(input("Введите ID задачи для удаления: "))
+                if manager.delete_task(task_id):
+                    print("🗑 Задача удалена")
+                else:
+                    print("❗ Задача с таким ID не найдена")
+            except ValueError:
+                print("⚠️ ID должен быть числом")
+
+        elif choice == "5":
+            print("👋 Выход из программы")
+            break
+
+        else:
+            print("❗ Неверный пункт меню")
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
