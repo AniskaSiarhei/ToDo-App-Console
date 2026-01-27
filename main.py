@@ -1,5 +1,5 @@
-from manager import ToDoManager
-from menu import show_menu, show_task
+from todo.manager import ToDoManager
+from todo.menu import show_menu, show_task
 
 
 def main():
