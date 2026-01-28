@@ -1,75 +1,67 @@
 from todo.database import Database
+from todo.repository import TaskRepository
 
 
 class ToDoManager:
-    """
-    Класс отвечает за управление задачами:
-    добавление, получение списка, завершение и удаление.
-    """
 
     def __init__(self):
         # Создаём объект базы данных
-        self.db = Database()
+        db = Database()
+        self.repository = TaskRepository(db)
 
-    def add_task(self, title):
+    def add_task(self, title: str):
         """
         Добавляет новую задачу в базу данных.
 
         :param title: текст задачи
         """
-        # Открываем соединение с БД
-        with self.db._connect() as conn:
-            # Добавляем задачу, done = 0 (не выполнена)
-            conn.execute(
-                "INSERT INTO tasks (title, done) VALUES (?, ?)",
-                (title, 0)
-            )
+        if not title.strip():
+            raise ValueError("Задача не может быть пустой!")
+        self.repository.create(title)
 
     def list_tasks(self):
         """
         Возвращает список всех задач.
         Каждая задача — словарь.
         """
-        with self.db._connect() as conn:
-            cursor = conn.execute(
-                "SELECT id, title, done FROM tasks"
-            )
+        rows = self.repository.find_all()
 
-            # Преобразуем строки БД в список словарей
-            return [
-                {
-                    "id": row[0],
-                    "title": row[1],
-                    "done": bool(row[2]) # 0/1 → False/True
-                }
-                for row in cursor.fetchall()
-            ]
+        # Преобразуем строки БД в список словарей
+        return [
+            {
+                "id": row[0],
+                "title": row[1],
+                "done": bool(row[2])  # 0/1 → False/True
+            }
+            for row in rows
+        ]
 
-    def complete_task(self, task_id):
+    def complete_task(self, task_id: int) -> bool:
         """
         Помечает задачу как выполненную.
 
         :param task_id: ID задачи
         :return: True если задача найдена и обновлена
         """
-        with self.db._connect() as conn:
-            cursor = conn.execute(
-                "UPDATE tasks SET done = 1 WHERE id = ?",
-                (task_id,)
-            )
-            # rowcount > 0 означает, что строка была обновлена
-            return cursor.rowcount > 0
+        return self.repository.mark_done(task_id)
 
-    def delete_task(self, task_id):
+
+    def delete_task(self, task_id: int) -> bool:
         """
         Удаляет задачу по ID.
 
         :param task_id: ID задачи
         :return: True если задача была удалена
         """
-        with self.db._connect() as conn:
-            cursor = conn.execute(
-                "DELETE FROM tasks WHERE id = ?",
-                (task_id,)
-            )
-            return cursor.rowcount > 0
+        return self.repository.delete(task_id)
+
+
+
+
+
+
+
+
+
+
+
