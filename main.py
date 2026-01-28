@@ -1,9 +1,13 @@
+from todo.database import Database
 from todo.manager import ToDoManager
 from todo.menu import show_menu, show_task
+from todo.repository import TaskRepository
 
 
 def main():
-    manager = ToDoManager()
+    db = Database()
+    repo = TaskRepository(db)
+    manager = ToDoManager(repo)
 
     while True:
         show_menu()

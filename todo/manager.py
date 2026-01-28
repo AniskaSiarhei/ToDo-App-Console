@@ -4,10 +4,10 @@ from todo.repository import TaskRepository
 
 class ToDoManager:
 
-    def __init__(self):
+    def __init__(self, repository):
         # Создаём объект базы данных
-        db = Database()
-        self.repository = TaskRepository(db)
+        # db = Database()
+        self.repository = repository
 
     def add_task(self, title: str):
         """
