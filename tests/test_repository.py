@@ -1,38 +1,45 @@
-import os
 import pytest
-from todo.database import Database
-from todo.repository import TaskRepository
-
-TEST_DB = "test_tasks.db"
 
 
-@pytest.fixture
-def db_session():
-    """Фикстура для создания и удаления тестовой БД."""
-    # Удаляем файл, если он остался от прошлых запусков
-    if os.path.exists(TEST_DB):
-        os.remove(TEST_DB)
+def test_add_task(manager):
+    manager.add_task("Выучить pytest")
 
-    db = Database(TEST_DB)
-    yield db  # Передаем объект базы в тест
-
-    # После завершения теста удаляем ссылку и файл
-    del db
-    if os.path.exists(TEST_DB):
-        try:
-            os.remove(TEST_DB)
-        except PermissionError:
-            # На Windows файл может освободиться не мгновенно
-            pass
-
-
-def test_create_and_find(db_session):
-    """Тест создания и поиска задачи."""
-    # Используем объект db_session, созданный фикстурой
-    repo = TaskRepository(db_session)
-    repo.create("SQLite task")
-
-    tasks = repo.find_all()
+    tasks = manager.list_tasks()
     assert len(tasks) == 1
-    assert tasks[0][1] == "SQLite task"
-    assert tasks[0][2] == 0
+    assert tasks[0]["title"] == "Выучить pytest"
+    assert tasks[0]["done"] is False
+
+
+def test_add_empty_task(manager):
+    with pytest.raises(ValueError):
+        manager.add_task("   ")
+
+
+def test_complete_task(manager):
+    manager.add_task("Сделать тесты")
+
+    result = manager.complete_task(1)
+    tasks = manager.list_tasks()
+
+    assert result is True
+    assert tasks[0]["done"] is True
+
+
+def test_complete_nonexistent_task(manager):
+    result = manager.complete_task(999)
+    assert result is False
+
+
+def test_delete_task(manager):
+    manager.add_task("Удалить меня")
+
+    result = manager.delete_task(1)
+    tasks = manager.list_tasks()
+
+    assert result is True
+    assert tasks == []
+
+
+def test_delete_nonexistent_task(manager):
+    result = manager.delete_task(123)
+    assert result is False
